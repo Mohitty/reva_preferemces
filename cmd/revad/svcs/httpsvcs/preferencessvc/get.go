@@ -23,7 +23,6 @@ import (
 
 	preferencesv0alphapb "github.com/cs3org/go-cs3apis/cs3/preferences/v0alpha"
 	rpcpb "github.com/cs3org/go-cs3apis/cs3/rpc"
-	"github.com/cs3org/reva/cmd/revad/svcs/httpsvcs"
 	"github.com/cs3org/reva/pkg/appctx"
 	"github.com/cs3org/reva/pkg/user"
 )
