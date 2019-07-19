@@ -38,8 +38,7 @@ func (s *svc) doGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var key string
-	key, r.URL.Path = httpsvcs.ShiftPath(r.URL.Path)
+	key := r.URL.Path
 
 	client, err := s.getClient()
 	if err != nil {

@@ -20,23 +20,18 @@ package preferencessvc
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 
-	preferencesv0alphapb "github.com/cs3org/go-cs3apis/cs3/preferences/v0alpha"
+	appregistryv0alphapb "github.com/cs3org/go-cs3apis/cs3/appregistry/v0alpha"
 	rpcpb "github.com/cs3org/go-cs3apis/cs3/rpc"
-	"github.com/cs3org/reva/cmd/revad/svcs/httpsvcs"
 	"github.com/cs3org/reva/pkg/appctx"
 	"github.com/cs3org/reva/pkg/user"
 )
 
-type parameter struct {
-	Value string
-}
-
-func (s *svc) doSet(w http.ResponseWriter, r *http.Request) {
+func (s *svc) doList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := appctx.GetLogger(ctx)
+
 	_, ok := user.ContextGetUser(ctx)
 	if !ok {
 		log.Error().Msg("error getting user from context")
@@ -44,38 +39,18 @@ func (s *svc) doSet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	key := r.URL.Path
-
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Error().Msg("error reading request body")
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	var p parameter
-	err = json.Unmarshal(body, &p)
-	if err != nil {
-		log.Error().Msg("error getting value from request")
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	client, err := s.getClient()
+	client, err := s.getAppRegistryClient()
 	if err != nil {
 		log.Error().Err(err).Msg("error getting grpc client")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	req := &preferencesv0alphapb.SetKeyRequest{
-		Key: key,
-		Val: p.Value,
-	}
+	req := &appregistryv0alphapb.ListAppProvidersRequest{}
 
-	res, err := client.SetKey(ctx, req)
+	res, err := client.ListAppProviders(ctx, req)
 	if err != nil {
-		log.Error().Err(err).Msg("error sending grpc SetKey request")
+		log.Error().Err(err).Msg("error sending grpc ListAppProviders request")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -90,5 +65,17 @@ func (s *svc) doSet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var rawResponse []string
+	for _, provider := range res.Providers {
+		rawResponse = append(rawResponse, provider.Address)
+	}
+	finalResponse, _ := json.Marshal(rawResponse)
+
+	_, err = w.Write(finalResponse)
+	if err != nil {
+		log.Warn().Str("code", string(res.Status.Code)).Msg("couldn't write to response")
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }

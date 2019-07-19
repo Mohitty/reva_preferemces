@@ -21,6 +21,7 @@ package preferencessvc
 import (
 	"net/http"
 
+	appregistryv0alphapb "github.com/cs3org/go-cs3apis/cs3/appregistry/v0alpha"
 	preferencesv0alphapb "github.com/cs3org/go-cs3apis/cs3/preferences/v0alpha"
 	"github.com/cs3org/reva/cmd/revad/httpserver"
 	"github.com/cs3org/reva/cmd/revad/svcs/httpsvcs"
@@ -43,6 +44,7 @@ type svc struct {
 	PreferencesSvc string
 	conn           *grpc.ClientConn
 	client         preferencesv0alphapb.PreferencesServiceClient
+	client2        appregistryv0alphapb.AppRegistryServiceClient
 }
 
 // New returns a new webuisvc
@@ -76,16 +78,34 @@ func (s *svc) setHandler() {
 		method := r.Method
 		switch method {
 		case "GET":
+			var head string
+			head, _ = httpsvcs.ShiftPath(r.URL.Path)
+			if head == "list" {
+				s.doList(w, r)
+				return
+			}
 			s.doGet(w, r)
 			return
 		case "POST":
 			s.doSet(w, r)
+			return
+		case "OPTIONS":
+			addCorsHeader(w)
+			w.WriteHeader(http.StatusOK)
 			return
 		default:
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 	})
+}
+
+func addCorsHeader(res http.ResponseWriter) {
+	headers := res.Header()
+	headers.Set("Access-Control-Allow-Origin", "http://localhost:8300")
+	headers.Set("Access-Control-Allow-Headers", "Content-Type, Origin, Authorization")
+	headers.Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	headers.Set("Content-Type", "application/json")
 }
 
 func (s *svc) getConn() (*grpc.ClientConn, error) {
@@ -112,4 +132,30 @@ func (s *svc) getClient() (preferencesv0alphapb.PreferencesServiceClient, error)
 	}
 	s.client = preferencesv0alphapb.NewPreferencesServiceClient(conn)
 	return s.client, nil
+}
+
+func (s *svc) getAppRegistryConn() (*grpc.ClientConn, error) {
+	if s.conn != nil {
+		return s.conn, nil
+	}
+
+	conn, err := grpc.Dial(s.PreferencesSvc, grpc.WithInsecure())
+	if err != nil {
+		return nil, err
+	}
+
+	return conn, nil
+}
+
+func (s *svc) getAppRegistryClient() (appregistryv0alphapb.AppRegistryServiceClient, error) {
+	if s.client2 != nil {
+		return s.client2, nil
+	}
+
+	conn, err := s.getAppRegistryConn()
+	if err != nil {
+		return nil, err
+	}
+	s.client2 = appregistryv0alphapb.NewAppRegistryServiceClient(conn)
+	return s.client2, nil
 }
