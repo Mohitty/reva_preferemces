@@ -56,9 +56,9 @@ header = "X-Access-Token"
 [http.middlewares.auth.token_writers.header]
 header = "X-Access-Token"
 
-[http.services.iframeuisvc]
-prefix = "iframe"
-iframeuisvc = "localhost:9999"
+[http.services.preferencessvc]
+prefix = "preferences"
+preferencessvc = "localhost:9999"
 
 [http.services.ocdavsvc]
 prefix = ""
