@@ -7,7 +7,7 @@ mode = "dev"
 level = "debug"
 
 [http]
-enabled_services = ["datasvc", "ocdavsvc", "ocssvc", "oidcprovider", "wellknown","preferencessvc"]
+enabled_services = ["datasvc", "ocdavsvc", "ocssvc", "oidcprovider", "wellknown","preferencessvc", "iframeuisvc"]
 #enabled_middlewares = ["log", "trace", "auth", "cors"]
 enabled_middlewares = ["log", "trace", "auth", "cors"]
 network = "tcp"
@@ -36,7 +36,8 @@ skip_methods = [
     "/oauth2/introspect",
     "/oauth2/userinfo", 
     "/oauth2/sessions", 
-    "/.well-known/openid-configuration"
+    "/.well-known/openid-configuration",
+    "/data/AtlasExample.root"
 ]
 
 [http.middlewares.cors]
@@ -59,6 +60,9 @@ header = "X-Access-Token"
 [http.services.preferencessvc]
 prefix = "preferences"
 preferencessvc = "localhost:9999"
+
+[http.services.iframeuisvc]
+prefix = "iframe"
 
 [http.services.ocdavsvc]
 prefix = ""
@@ -153,7 +157,7 @@ prefix = "data"
 temp_folder = "/var/tmp/"
 
 [http.services.datasvc.drivers.local]
-root = "/data"
+root = "/home/mohit/data"
 
 [http.services.datasvc.drivers.owncloud]
 datadirectory = "/data"
@@ -244,7 +248,7 @@ md5   = 100
 unset = 1000
 
 [grpc.services.storageprovidersvc.drivers.local]
-root = "/data"
+root = "/home/mohit/data"
 
 [grpc.services.storageprovidersvc.drivers.owncloud]
 datadirectory = "/data"
@@ -253,7 +257,7 @@ datadirectory = "/data"
 driver = "local"
 
 [grpc.services.usershareprovidersvc.drivers.local]
-root = "/data"
+root = "/home/mohit/data"
 
 [grpc.services.usershareprovidersvc.drivers.owncloud]
 datadirectory = "/data"
@@ -265,3 +269,9 @@ driver = "static"
 "text/plain" = "localhost:9999"
 "text/html" = "sub.example.org"
 "application/pdf" = "example.org"
+
+[grpc.services.appprovidersvc]
+driver = "demo"
+
+[grpc.services.appprovidersvc.demo]
+iframe_ui_provider = "http://localhost:9998/iframe"
