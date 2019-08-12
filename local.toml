@@ -37,7 +37,7 @@ skip_methods = [
     "/oauth2/userinfo", 
     "/oauth2/sessions", 
     "/.well-known/openid-configuration",
-    "/data/AtlasExample.root"
+    "/data"
 ]
 
 [http.middlewares.cors]
