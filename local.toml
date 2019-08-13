@@ -157,7 +157,7 @@ prefix = "data"
 temp_folder = "/var/tmp/"
 
 [http.services.datasvc.drivers.local]
-root = "/home/mohit/data"
+root = "/data"
 
 [http.services.datasvc.drivers.owncloud]
 datadirectory = "/data"
@@ -248,7 +248,7 @@ md5   = 100
 unset = 1000
 
 [grpc.services.storageprovidersvc.drivers.local]
-root = "/home/mohit/data"
+root = "/data"
 
 [grpc.services.storageprovidersvc.drivers.owncloud]
 datadirectory = "/data"
@@ -257,7 +257,7 @@ datadirectory = "/data"
 driver = "local"
 
 [grpc.services.usershareprovidersvc.drivers.local]
-root = "/home/mohit/data"
+root = "/data"
 
 [grpc.services.usershareprovidersvc.drivers.owncloud]
 datadirectory = "/data"
