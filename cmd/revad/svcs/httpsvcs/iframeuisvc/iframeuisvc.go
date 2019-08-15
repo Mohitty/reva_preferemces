@@ -25,6 +25,7 @@ import (
 	"github.com/cs3org/reva/cmd/revad/httpserver"
 	"github.com/cs3org/reva/cmd/revad/svcs/httpsvcs"
 	"github.com/cs3org/reva/pkg/appctx"
+	"github.com/cs3org/reva/pkg/user"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -78,12 +79,19 @@ func doOpen(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := appctx.GetLogger(ctx)
 
+	u, ok := user.ContextGetUser(ctx)
+	if !ok {
+		log.Error().Msg("error getting user from context")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	filename := strings.TrimPrefix(r.URL.Path, "/")
 
 	tokens, _ := r.URL.Query()["access_token"]
 	token := tokens[0]
 
-	responseString := `https://root.cern/js/latest/?file=http://localhost:9998/data?filename=` + filename + `&access_token=` + token
+	responseString := `https://root.cern/js/latest/?file=http://localhost:9998/data?filename=/` + u.Username + `/` + filename + `&access_token=` + token
 	_, err := w.Write([]byte(responseString))
 	if err != nil {
 		log.Error().Err(err).Msg("can't write to response")

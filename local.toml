@@ -266,9 +266,7 @@ datadirectory = "/data"
 driver = "static"
 
 [grpc.services.appregistrysvc.static.rules]
-"text/plain" = "localhost:9999"
-"text/html" = "sub.example.org"
-"application/pdf" = "example.org"
+"application/x-root" = "root.cern/js/latest"
 
 [grpc.services.appprovidersvc]
 driver = "demo"
