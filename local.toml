@@ -7,7 +7,7 @@ mode = "dev"
 level = "debug"
 
 [http]
-enabled_services = ["datasvc", "ocdavsvc", "ocssvc", "oidcprovider", "wellknown","preferencessvc", "iframeuisvc"]
+enabled_services = ["appregistrysvc", "datasvc", "ocdavsvc", "ocssvc", "oidcprovider", "wellknown","preferencessvc", "iframeuisvc"]
 #enabled_middlewares = ["log", "trace", "auth", "cors"]
 enabled_middlewares = ["log", "trace", "auth", "cors"]
 network = "tcp"
@@ -56,6 +56,10 @@ header = "X-Access-Token"
 
 [http.middlewares.auth.token_writers.header]
 header = "X-Access-Token"
+
+[http.services.appregistrysvc]
+prefix = "appregistry"
+gatewaysvc = "localhost:9999"
 
 [http.services.preferencessvc]
 prefix = "preferences"
